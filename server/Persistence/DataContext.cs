@@ -12,6 +12,8 @@ namespace Persistence
 
         public DbSet<Tag> Tags { get; set; }
 
+        public DbSet<Idea> Ideas { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<Tag>()

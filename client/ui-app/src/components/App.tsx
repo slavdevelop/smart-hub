@@ -1,8 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import { Header, Icon, List } from 'semantic-ui-react'
-import axios from 'axios';
+import { Header, Icon, List, Container } from 'semantic-ui-react'
 
-import './App.css';
+import axios from 'axios';
 
 const App: React.FC = () => {
   const [tags, setTags] = useState([]);
@@ -14,17 +13,17 @@ const App: React.FC = () => {
   }, [])
 
   return (
-    <div>
-      <Header as='h2'>
-        <Icon name='plug' />
-        <Header.Content>Uptime Guarantee</Header.Content>
+    <Container mt='2' style={{marginTop: '1rem'}}>
+      <Header as='h1' icon textAlign='center' >
+        <Icon name='settings' circular />
+        <Header.Content>shtipkov.org</Header.Content>
       </Header>
       <List>
         {tags.map((t: any) => (
           <List.Item key={t.id}>{t.name}</List.Item>
         ))}
       </List>
-    </div>
+    </Container>
   );
 }
 
