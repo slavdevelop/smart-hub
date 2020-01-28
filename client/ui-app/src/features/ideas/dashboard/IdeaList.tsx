@@ -5,9 +5,14 @@ import { IIdea } from "../../../app/models/idea";
 interface IProps {
   ideas: IIdea[];
   selectIdea: (id: string) => void;
+  deleteIdea: (id: string) => void;
 }
 
-export const IdeaList: React.FC<IProps> = ({ ideas, selectIdea }) => {
+export const IdeaList: React.FC<IProps> = ({
+  ideas,
+  selectIdea,
+  deleteIdea
+}) => {
   return (
     <Segment clearing>
       <Item.Group divided>
@@ -24,6 +29,12 @@ export const IdeaList: React.FC<IProps> = ({ ideas, selectIdea }) => {
                   floated="right"
                   content="View"
                   color="blue"
+                />
+                <Button
+                  onClick={() => deleteIdea(idea.id)}
+                  floated="right"
+                  content="Delete"
+                  color="red"
                 />
                 <Label basic content={idea.category} />
               </Item.Extra>

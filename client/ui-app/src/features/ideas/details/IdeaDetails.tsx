@@ -1,30 +1,50 @@
 import React from "react";
-import { Card, Icon, Image, Button } from "semantic-ui-react";
+import { Card, Image, Button } from "semantic-ui-react";
 import { IIdea } from "../../../app/models/idea";
 
 interface IProps {
-  selectedIdea: IIdea | null;
+  idea: IIdea | null;
+  setEditMode: (editMode: boolean) => void;
+  setSelectedIdea: (idea: IIdea | null) => void;
 }
 
-export const IdeaDetails: React.FC<IProps> = ({ selectedIdea }) => {
+export const IdeaDetails: React.FC<IProps> = ({
+  idea,
+  setEditMode,
+  setSelectedIdea
+}) => {
   return (
     <Card fluid>
-      <Image src="/assets/placeholder.png" wrapped ui={false} />
-      {selectedIdea !== null && (
+      <Image
+        src={`/assets/categoryImages/${idea?.category}.jpg`}
+        wrapped
+        ui={false}
+      />
+      {idea !== null && (
         <Card.Content>
-          <Card.Header>{selectedIdea.title}</Card.Header>
+          <Card.Header>{idea.title}</Card.Header>
           <Card.Meta>
-            <span>{selectedIdea.created}</span>
-            <span>{selectedIdea.updated}</span>
+            <span>{idea.created}</span>
+            <span>{idea.updated}</span>
           </Card.Meta>
-          <Card.Meta>{selectedIdea.category}</Card.Meta>
-          <Card.Description>{selectedIdea.description}</Card.Description>
+          <Card.Meta>{idea.category}</Card.Meta>
+          <Card.Description>{idea.description}</Card.Description>
         </Card.Content>
       )}
       <Card.Content extra>
         <Button.Group widths={2}>
-          <Button basic color="blue" content="Edit" />
-          <Button basic color="grey" content="Cancel" />
+          <Button
+            onClick={() => setEditMode(true)}
+            basic
+            color="blue"
+            content="Edit"
+          />
+          <Button
+            onClick={() => setSelectedIdea(null)}
+            basic
+            color="grey"
+            content="Cancel"
+          />
         </Button.Group>
       </Card.Content>
     </Card>
