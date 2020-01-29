@@ -1,31 +1,37 @@
-import React, { useEffect, useContext } from "react";
+import React from "react";
 import { Container } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
+import { Route, withRouter, RouteComponentProps } from "react-router-dom";
 
 import NavBar from "../../features/nav/NavBar";
+import HomePage from "../../features/home/HomePage";
 import IdeaDashboard from "../../features/ideas/dashboard/IdeaDashboard";
-import { LoadingComponent } from "./LoadingComponent";
+import IdeaForm from "../../features/ideas/form/IdeaForm";
+import IdeaDetails from "../../features/ideas/details/IdeaDetails";
 
-import IdeaStore from "../stores/ideaStore";
-
-const App: React.FC = () => {
-  const ideaStore = useContext(IdeaStore);
-
-  useEffect(() => {
-    ideaStore.loadIdeas();
-  }, [ideaStore]);
-
-  if (ideaStore.loadingInitial)
-    return <LoadingComponent content="Loading Ideas..." />;
-
+const App: React.FC<RouteComponentProps> = ({ location }) => {
   return (
     <>
-      <NavBar />
-      <Container style={{ marginTop: "7em" }}>
-        <IdeaDashboard />
-      </Container>
+      <Route exact path="/" component={HomePage} />
+      <Route
+        path={"/(.+)"}
+        render={() => (
+          <>
+            <NavBar />
+            <Container style={{ marginTop: "7em" }}>
+              <Route exact path="/ideas" component={IdeaDashboard} />
+              <Route path="/ideas/:id" component={IdeaDetails} />
+              <Route
+                key={location.key}
+                path={["/newIdea", "/manage/:id"]}
+                component={IdeaForm}
+              />
+            </Container>
+          </>
+        )}
+      />
     </>
   );
 };
 
-export default observer(App);
+export default withRouter(observer(App));

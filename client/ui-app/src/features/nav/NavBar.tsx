@@ -1,16 +1,13 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Menu, Container, Button } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
-
-import IdeaStore from "../../app/stores/ideaStore";
+import { NavLink } from "react-router-dom";
 
 const NavBar: React.FC = () => {
-  const ideaStore = useContext(IdeaStore);
-
   return (
     <Menu fixed="top" inverted>
       <Container>
-        <Menu.Item header>
+        <Menu.Item header as={NavLink} exact to="/">
           <img
             src="/assets/logo.jpg"
             alt="logo"
@@ -18,13 +15,9 @@ const NavBar: React.FC = () => {
           />
           Smart Hub
         </Menu.Item>
-        <Menu.Item name="Ideas" />
+        <Menu.Item name="Ideas" as={NavLink} to="/ideas" />
         <Menu.Item>
-          <Button
-            onClick={ideaStore.openCreateForm}
-            positive
-            content="Give an Idea"
-          />
+          <Button as={NavLink} to="/newIdea" positive content="New Idea" />
         </Menu.Item>
       </Container>
     </Menu>

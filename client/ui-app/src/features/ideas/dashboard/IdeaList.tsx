@@ -3,16 +3,11 @@ import { Item, Button, Label, Segment } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 
 import IdeaStore from "../../../app/stores/ideaStore";
+import { Link } from "react-router-dom";
 
 const IdeaList: React.FC = () => {
   const ideaStore = useContext(IdeaStore);
-  const {
-    ideasByCreated,
-    selectIdea,
-    deleteIdea,
-    submitting,
-    target
-  } = ideaStore;
+  const { ideasByCreated, deleteIdea, submitting, target } = ideaStore;
 
   return (
     <Segment clearing>
@@ -26,7 +21,8 @@ const IdeaList: React.FC = () => {
               <Item.Description>{idea.description}</Item.Description>
               <Item.Extra>
                 <Button
-                  onClick={() => selectIdea(idea.id)}
+                  as={Link}
+                  to={`/ideas/${idea.id}`}
                   floated="right"
                   content="View"
                   color="blue"

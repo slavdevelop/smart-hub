@@ -1,4 +1,4 @@
-import React, { useState, FormEvent, useContext } from "react";
+import React, { useState, FormEvent, useContext, useEffect } from "react";
 import { Segment, Form, Button } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
 
@@ -6,31 +6,46 @@ import { IIdea } from "../../../app/models/idea";
 
 import IdeaStore from "../../../app/stores/ideaStore";
 import { observer } from "mobx-react-lite";
+import { RouteComponentProps } from "react-router-dom";
 
-interface IProps {
-  idea: IIdea;
+interface DetailParams {
+  id: string;
 }
 
-const IdeaForm: React.FC<IProps> = ({ idea: initialFormState }) => {
+const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
+  match,
+  history
+}) => {
   const ideaStore = useContext(IdeaStore);
-  const { createIdea, editIdea, submitting, cancelFormOpen } = ideaStore;
+  const {
+    createIdea,
+    editIdea,
+    submitting,
+    idea: initialFormState,
+    loadIdea,
+    clearIdea
+  } = ideaStore;
 
-  const initializeForm = () => {
-    if (initialFormState) {
-      return initialFormState;
-    } else {
-      return {
-        id: "",
-        title: "",
-        category: "",
-        description: "",
-        created: "",
-        updated: ""
-      };
+  const [idea, setIdea] = useState<IIdea>({
+    id: "",
+    title: "",
+    category: "",
+    description: "",
+    created: "",
+    updated: ""
+  });
+
+  useEffect(() => {
+    if (match.params.id && idea.id.length === 0) {
+      loadIdea(match.params.id).then(
+        () => initialFormState && setIdea(initialFormState)
+      );
     }
-  };
 
-  const [idea, setIdea] = useState<IIdea>(initializeForm);
+    return () => {
+      clearIdea();
+    };
+  }, [loadIdea, clearIdea, match.params.id, initialFormState, idea.id.length]);
 
   const handleSubmit = () => {
     if (idea.id.length === 0) {
@@ -39,9 +54,9 @@ const IdeaForm: React.FC<IProps> = ({ idea: initialFormState }) => {
         id: uuid()
       };
 
-      createIdea(newIdea);
+      createIdea(newIdea).then(() => history.push(`/ideas/${newIdea.id}`));
     } else {
-      editIdea(idea);
+      editIdea(idea).then(() => history.push(`/ideas/${idea.id}`));
     }
   };
 
@@ -96,7 +111,7 @@ const IdeaForm: React.FC<IProps> = ({ idea: initialFormState }) => {
           content="Submit"
         />
         <Button
-          onClick={cancelFormOpen}
+          onClick={() => history.push("/ideas")}
           floated="right"
           type="button"
           content="Cancel"

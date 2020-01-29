@@ -7,10 +7,8 @@ configure({ enforceActions: "always" });
 
 class IdeaStore {
   @observable ideaRegistry = new Map();
-  @observable ideas: IIdea[] = [];
-  @observable selectedIdea: IIdea | undefined;
+  @observable idea: IIdea | null = null;
   @observable loadingInitial = false;
-  @observable editMode = false;
   @observable submitting = false;
   @observable target = "";
 
@@ -42,6 +40,36 @@ class IdeaStore {
     }
   };
 
+  @action loadIdea = async (id: string) => {
+    let idea = this.getIdea(id);
+
+    if (idea) {
+      this.idea = idea;
+    } else {
+      this.loadingInitial = true;
+
+      try {
+        idea = await agent.Ideas.details(id);
+
+        runInAction("getting idea", () => {
+          this.idea = idea;
+          this.loadingInitial = false;
+        });
+      } catch (error) {
+        runInAction("get idea error", () => {
+          this.loadingInitial = false;
+        });
+        console.log(error);
+      }
+    }
+  };
+
+  @action clearIdea = () => {
+    this.idea = null;
+  };
+
+  getIdea = (id: string) => this.ideaRegistry.get(id);
+
   @action createIdea = async (idea: IIdea) => {
     this.submitting = true;
 
@@ -49,7 +77,6 @@ class IdeaStore {
       await agent.Ideas.create(idea);
       runInAction("creating idea", () => {
         this.ideaRegistry.set(idea.id, idea);
-        this.editMode = false;
         this.submitting = false;
       });
     } catch (error) {
@@ -67,8 +94,7 @@ class IdeaStore {
       await agent.Ideas.update(idea);
       runInAction("editing idea", () => {
         this.ideaRegistry.set(idea.id, idea);
-        this.selectedIdea = idea;
-        this.editMode = false;
+        this.idea = idea;
         this.submitting = false;
       });
     } catch (error) {
@@ -100,29 +126,6 @@ class IdeaStore {
       });
       console.log(error);
     }
-  };
-
-  @action openCreateForm = () => {
-    this.editMode = true;
-    this.selectedIdea = undefined;
-  };
-
-  @action openEditForm = (id: string) => {
-    this.selectedIdea = this.ideaRegistry.get(id);
-    this.editMode = true;
-  };
-
-  @action cancelSelectedIdea = () => {
-    this.selectedIdea = undefined;
-  };
-
-  @action cancelFormOpen = () => {
-    this.editMode = false;
-  };
-
-  @action selectIdea = (id: string) => {
-    this.selectedIdea = this.ideaRegistry.get(id);
-    this.editMode = false;
   };
 }
 
