@@ -15,17 +15,19 @@ interface DetailParams {
 }
 
 const IdeaDetails: React.FC<RouteComponentProps<DetailParams>> = ({
-  match
+  match,
+  history
 }) => {
   const ideaStore = useContext(IdeaStore);
   const { idea, loadIdea, loadingInitial } = ideaStore;
 
   useEffect(() => {
     loadIdea(match.params.id);
-  }, [loadIdea, match.params.id]);
+  }, [loadIdea, match.params.id, history]);
 
-  if (loadingInitial || !idea)
-    return <LoadingComponent content="Loading idea..." />;
+  if (loadingInitial) return <LoadingComponent content="Loading idea..." />;
+
+  if (!idea) return <h2>Idea not found!</h2>;
 
   return (
     <Grid>

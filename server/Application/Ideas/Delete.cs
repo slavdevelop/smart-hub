@@ -1,6 +1,8 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Errors;
 using MediatR;
 using Persistence;
 
@@ -27,7 +29,7 @@ namespace Application.Ideas
 
                 if (idea == null)
                 {
-                    throw new Exception("Could not find idea");
+                    throw new RestException(HttpStatusCode.NotFound, new { idea = "Not found" });
                 }
 
                 _context.Remove(idea);

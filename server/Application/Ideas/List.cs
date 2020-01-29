@@ -10,7 +10,7 @@ namespace Application.Ideas
 {
     public class List
     {
-        public class Query : IRequest<List<Idea>> {}
+        public class Query : IRequest<List<Idea>> { }
 
         public class Handler : IRequestHandler<Query, List<Idea>>
         {

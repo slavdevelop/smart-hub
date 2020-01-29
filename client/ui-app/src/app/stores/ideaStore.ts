@@ -45,7 +45,6 @@ class IdeaStore {
 
         this.loadingInitial = false;
       });
-      console.log(this.groupIdeasByDate(ideas));
     } catch (error) {
       runInAction("load ideas error", () => {
         this.loadingInitial = false;
@@ -73,6 +72,7 @@ class IdeaStore {
         runInAction("get idea error", () => {
           this.loadingInitial = false;
         });
+
         console.log(error);
       }
     }
@@ -138,7 +138,7 @@ class IdeaStore {
         this.submitting = false;
         this.target = "";
       });
-      console.log(error);
+      throw error;
     }
   };
 }

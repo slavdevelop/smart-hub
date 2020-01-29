@@ -1,6 +1,9 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Errors;
+using FluentValidation;
 using MediatR;
 using Persistence;
 
@@ -18,6 +21,18 @@ namespace Application.Ideas
             public DateTime? Updated { get; set; }
         }
 
+        public class CommandValidator : AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+                RuleFor(x => x.Title).NotEmpty();
+                RuleFor(x => x.Description).NotEmpty();
+                RuleFor(x => x.Category).NotEmpty();
+                RuleFor(x => x.Created).NotEmpty();
+                RuleFor(x => x.Updated).NotEmpty();
+            }
+        }
+
         public class Handler : IRequestHandler<Command>
         {
             private readonly DataContext _context;
@@ -32,7 +47,7 @@ namespace Application.Ideas
 
                 if (idea == null)
                 {
-                    throw new Exception("Coud not find idea");
+                    throw new RestException(HttpStatusCode.NotFound, new { idea = "Not found" });
                 }
 
                 idea.Title = request.Title ?? idea.Title;
