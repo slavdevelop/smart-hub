@@ -1,47 +1,29 @@
-import React, { useContext } from "react";
-import { Item, Button, Label, Segment } from "semantic-ui-react";
+import React, { useContext, Fragment } from "react";
+import { Item, Label } from "semantic-ui-react";
 import { observer } from "mobx-react-lite";
 
 import IdeaStore from "../../../app/stores/ideaStore";
-import { Link } from "react-router-dom";
+import { IdeaListItem } from "./IdeaListItem";
 
 const IdeaList: React.FC = () => {
   const ideaStore = useContext(IdeaStore);
-  const { ideasByCreated, deleteIdea, submitting, target } = ideaStore;
+  const { ideasByCreated } = ideaStore;
 
   return (
-    <Segment clearing>
-      <Item.Group divided>
-        {ideasByCreated.map(idea => (
-          <Item key={idea.id}>
-            <Item.Content>
-              <Item.Header as="a">{idea.title}</Item.Header>
-              <Item.Meta>{idea.created}</Item.Meta>
-              <Item.Meta>{idea.updated}</Item.Meta>
-              <Item.Description>{idea.description}</Item.Description>
-              <Item.Extra>
-                <Button
-                  as={Link}
-                  to={`/ideas/${idea.id}`}
-                  floated="right"
-                  content="View"
-                  color="blue"
-                />
-                <Button
-                  name={idea.id}
-                  loading={target === idea.id && submitting}
-                  onClick={e => deleteIdea(e, idea.id)}
-                  floated="right"
-                  content="Delete"
-                  color="red"
-                />
-                <Label basic content={idea.category} />
-              </Item.Extra>
-            </Item.Content>
-          </Item>
-        ))}
-      </Item.Group>
-    </Segment>
+    <>
+      {ideasByCreated.map(([group, ideas]) => (
+        <Fragment key={group}>
+          <Label size="large" color="blue">
+            {group}
+          </Label>
+          <Item.Group divided>
+            {ideas.map(idea => (
+              <IdeaListItem key={idea.id} idea={idea} />
+            ))}
+          </Item.Group>
+        </Fragment>
+      ))}
+    </>
   );
 };
 

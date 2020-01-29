@@ -1,5 +1,5 @@
 import React, { useState, FormEvent, useContext, useEffect } from "react";
-import { Segment, Form, Button } from "semantic-ui-react";
+import { Segment, Form, Button, Grid } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
 
 import { IIdea } from "../../../app/models/idea";
@@ -68,56 +68,60 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
   };
 
   return (
-    <Segment clearing>
-      <Form onSubmit={handleSubmit}>
-        <Form.Input
-          onChange={handleInputChange}
-          name="title"
-          placeholder="Title"
-          value={idea.title}
-        />
-        <Form.TextArea
-          onChange={handleInputChange}
-          name="description"
-          rows={2}
-          placeholder="Description"
-          value={idea.description}
-        />
-        <Form.Input
-          onChange={handleInputChange}
-          name="category"
-          placeholder="Category"
-          value={idea.category}
-        />
-        <Form.Input
-          onChange={handleInputChange}
-          name="created"
-          type="datetime-local"
-          placeholder="Created"
-          value={idea.created}
-        />
-        <Form.Input
-          onChange={handleInputChange}
-          name="updated"
-          type="datetime-local"
-          placeholder="Updated"
-          value={idea.updated}
-        />
-        <Button
-          loading={submitting}
-          floated="right"
-          positive
-          type="submit"
-          content="Submit"
-        />
-        <Button
-          onClick={() => history.push("/ideas")}
-          floated="right"
-          type="button"
-          content="Cancel"
-        />
-      </Form>
-    </Segment>
+    <Grid>
+      <Grid.Column width={10}>
+        <Segment clearing>
+          <Form onSubmit={handleSubmit}>
+            <Form.Input
+              onChange={handleInputChange}
+              name="title"
+              placeholder="Title"
+              value={idea.title}
+            />
+            <Form.TextArea
+              onChange={handleInputChange}
+              name="description"
+              rows={2}
+              placeholder="Description"
+              value={idea.description}
+            />
+            <Form.Input
+              onChange={handleInputChange}
+              name="category"
+              placeholder="Category"
+              value={idea.category}
+            />
+            <Form.Input
+              onChange={handleInputChange}
+              name="created"
+              type="datetime-local"
+              placeholder="Created"
+              value={idea.created}
+            />
+            <Form.Input
+              onChange={handleInputChange}
+              name="updated"
+              type="datetime-local"
+              placeholder="Updated"
+              value={idea.updated}
+            />
+            <Button
+              loading={submitting}
+              floated="right"
+              positive
+              type="submit"
+              content="Submit"
+            />
+            <Button
+              onClick={() => history.push("/ideas")}
+              floated="right"
+              type="button"
+              content="Cancel"
+            />
+          </Form>
+        </Segment>
+      </Grid.Column>
+    </Grid>
   );
 };
 

@@ -13,8 +13,21 @@ class IdeaStore {
   @observable target = "";
 
   @computed get ideasByCreated() {
-    return Array.from(this.ideaRegistry.values()).sort(
+    return this.groupIdeasByDate(Array.from(this.ideaRegistry.values()));
+  }
+
+  groupIdeasByDate(ideas: IIdea[]) {
+    const sortedIdeas = ideas.sort(
       (a, b) => Date.parse(a.created) - Date.parse(b.created)
+    );
+
+    return Object.entries(
+      sortedIdeas.reduce((ideas, idea) => {
+        const date = idea.created.split("T")[0];
+        ideas[date] = ideas[date] ? [...ideas[date], idea] : [idea];
+
+        return ideas;
+      }, {} as { [key: string]: IIdea[] })
     );
   }
 
@@ -32,6 +45,7 @@ class IdeaStore {
 
         this.loadingInitial = false;
       });
+      console.log(this.groupIdeasByDate(ideas));
     } catch (error) {
       runInAction("load ideas error", () => {
         this.loadingInitial = false;
