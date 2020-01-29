@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SyntheticEvent } from "react";
 import { Grid } from "semantic-ui-react";
 import { IIdea } from "../../../app/models/idea";
 import { IdeaList } from "./IdeaList";
@@ -14,7 +14,9 @@ interface IProps {
   setSelectedIdea: (idea: IIdea | null) => void;
   createIdea: (idea: IIdea) => void;
   editIdea: (idea: IIdea) => void;
-  deleteIdea: (id: string) => void;
+  deleteIdea: (e: SyntheticEvent<HTMLButtonElement>, id: string) => void;
+  submitting: boolean;
+  target: string;
 }
 
 export const IdeaDashboard: React.FC<IProps> = ({
@@ -26,7 +28,9 @@ export const IdeaDashboard: React.FC<IProps> = ({
   setSelectedIdea,
   createIdea,
   editIdea,
-  deleteIdea
+  deleteIdea,
+  submitting,
+  target
 }) => {
   return (
     <Grid>
@@ -35,6 +39,8 @@ export const IdeaDashboard: React.FC<IProps> = ({
           ideas={ideas}
           selectIdea={selectIdea}
           deleteIdea={deleteIdea}
+          submitting={submitting}
+          target={target}
         />
       </Grid.Column>
       <Grid.Column width={6}>
@@ -52,6 +58,7 @@ export const IdeaDashboard: React.FC<IProps> = ({
             idea={selectedIdea!}
             createIdea={createIdea}
             editIdea={editIdea}
+            submitting={submitting}
           />
         )}
       </Grid.Column>

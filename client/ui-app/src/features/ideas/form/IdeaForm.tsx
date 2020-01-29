@@ -8,13 +8,15 @@ interface IProps {
   idea: IIdea;
   createIdea: (idea: IIdea) => void;
   editIdea: (idea: IIdea) => void;
+  submitting: boolean;
 }
 
 export const IdeaForm: React.FC<IProps> = ({
   setEditMode,
   idea: initialFormState,
   createIdea,
-  editIdea
+  editIdea,
+  submitting
 }) => {
   const initializeForm = () => {
     if (initialFormState) {
@@ -89,7 +91,13 @@ export const IdeaForm: React.FC<IProps> = ({
           placeholder="Updated"
           value={idea.updated}
         />
-        <Button floated="right" positive type="submit" content="Submit" />
+        <Button
+          loading={submitting}
+          floated="right"
+          positive
+          type="submit"
+          content="Submit"
+        />
         <Button
           onClick={() => setEditMode(false)}
           floated="right"

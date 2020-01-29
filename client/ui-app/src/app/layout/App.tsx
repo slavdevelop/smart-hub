@@ -1,16 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, SyntheticEvent } from "react";
 import { Container } from "semantic-ui-react";
-import axios from "axios";
 
 import { IIdea } from "../models/idea";
 import { NavBar } from "../../features/nav/NavBar";
 import { IdeaDashboard } from "../../features/ideas/dashboard/IdeaDashboard";
+import agent from "../api/agent";
+import { LoadingComponent } from "./LoadingComponent";
 
 const App: React.FC = () => {
   const [ideas, setIdeas] = useState<IIdea[]>([]);
   const [selectedIdea, setSelectedIdea] = useState<IIdea | null>(null);
 
   const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [target, setTarget] = useState("");
 
   const handleSelectIdea = (id: string) => {
     setSelectedIdea(ideas.filter(i => i.id === id)[0]);
@@ -23,28 +27,48 @@ const App: React.FC = () => {
   };
 
   const handleCreateIdea = (idea: IIdea) => {
-    setIdeas([...ideas, idea]);
-    setSelectedIdea(idea);
-    setEditMode(false);
+    setSubmitting(true);
+    agent.Ideas.create(idea)
+      .then(() => {
+        setIdeas([...ideas, idea]);
+        setSelectedIdea(idea);
+        setEditMode(false);
+      })
+      .then(() => setSubmitting(false));
   };
 
   const handleEditIdea = (idea: IIdea) => {
-    setIdeas([...ideas.filter(i => i.id !== idea.id), idea]);
-    setSelectedIdea(idea);
-    setEditMode(false);
+    setSubmitting(true);
+
+    agent.Ideas.update(idea)
+      .then(() => {
+        setIdeas([...ideas.filter(i => i.id !== idea.id), idea]);
+        setSelectedIdea(idea);
+        setEditMode(false);
+      })
+      .then(() => setSubmitting(false));
   };
 
-  const handleDeleteIdea = (id: string) => {
-    setIdeas([...ideas.filter(i => i.id !== id)]);
+  const handleDeleteIdea = (
+    event: SyntheticEvent<HTMLButtonElement>,
+    id: string
+  ) => {
+    setSubmitting(true);
+    setTarget(event.currentTarget.name);
+
+    agent.Ideas.delete(id)
+      .then(() => {
+        setIdeas([...ideas.filter(i => i.id !== id)]);
+      })
+      .then(() => setSubmitting(false));
   };
 
   useEffect(() => {
-    axios
-      .get<IIdea[]>("http://localhost:5000/api/ideas")
+    agent.Ideas.list()
       .then(response => {
         let ideas: IIdea[] = [];
 
-        response.data.forEach(idea => {
+        response.forEach(idea => {
           idea.created = idea.created.split(".")[0];
           idea.updated = idea.updated.split(".")[0];
           ideas.push(idea);
@@ -52,8 +76,11 @@ const App: React.FC = () => {
 
         setIdeas(ideas);
       })
+      .then(() => setLoading(false))
       .catch(error => console.log(error));
   }, []);
+
+  if (loading) return <LoadingComponent content="Loading Ideas..." />;
 
   return (
     <>
@@ -69,6 +96,8 @@ const App: React.FC = () => {
           createIdea={handleCreateIdea}
           editIdea={handleEditIdea}
           deleteIdea={handleDeleteIdea}
+          submitting={submitting}
+          target={target}
         />
       </Container>
     </>
