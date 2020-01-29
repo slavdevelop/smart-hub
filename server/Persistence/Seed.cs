@@ -95,9 +95,9 @@ namespace Persistence
                     },
                     new Idea()
                     {
-                        Title = "web",
+                        Title = "Marketing",
                         Description = "I should update almost all social networks, to create posts, guides, tutorials, and many many many more.",
-                        Category = "Marketing",
+                        Category = "web",
                         Created = DateTime.Now.AddMonths(-19),
                         Updated = DateTime.Now.AddMonths(-13)
                     }
