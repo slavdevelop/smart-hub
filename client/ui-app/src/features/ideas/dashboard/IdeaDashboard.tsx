@@ -1,67 +1,33 @@
-import React, { SyntheticEvent } from "react";
+import React, { useContext } from "react";
 import { Grid } from "semantic-ui-react";
-import { IIdea } from "../../../app/models/idea";
-import { IdeaList } from "./IdeaList";
-import { IdeaDetails } from "../details/IdeaDetails";
-import { IdeaForm } from "../form/IdeaForm";
+import { observer } from "mobx-react-lite";
 
-interface IProps {
-  ideas: IIdea[];
-  selectIdea: (id: string) => void;
-  selectedIdea: IIdea | null;
-  editMode: boolean;
-  setEditMode: (editMode: boolean) => void;
-  setSelectedIdea: (idea: IIdea | null) => void;
-  createIdea: (idea: IIdea) => void;
-  editIdea: (idea: IIdea) => void;
-  deleteIdea: (e: SyntheticEvent<HTMLButtonElement>, id: string) => void;
-  submitting: boolean;
-  target: string;
-}
+import IdeaList from "./IdeaList";
+import IdeaDetails from "../details/IdeaDetails";
+import IdeaForm from "../form/IdeaForm";
 
-export const IdeaDashboard: React.FC<IProps> = ({
-  ideas,
-  selectIdea,
-  selectedIdea,
-  editMode,
-  setEditMode,
-  setSelectedIdea,
-  createIdea,
-  editIdea,
-  deleteIdea,
-  submitting,
-  target
-}) => {
+import IdeaStore from "../../../app/stores/ideaStore";
+
+const IdeaDashboard: React.FC = () => {
+  const ideaStore = useContext(IdeaStore);
+  const { editMode, selectedIdea } = ideaStore;
+
   return (
     <Grid>
       <Grid.Column width={10}>
-        <IdeaList
-          ideas={ideas}
-          selectIdea={selectIdea}
-          deleteIdea={deleteIdea}
-          submitting={submitting}
-          target={target}
-        />
+        <IdeaList />
       </Grid.Column>
       <Grid.Column width={6}>
-        {selectedIdea && !editMode && (
-          <IdeaDetails
-            idea={selectedIdea}
-            setEditMode={setEditMode}
-            setSelectedIdea={setSelectedIdea}
-          />
-        )}
+        {selectedIdea && !editMode && <IdeaDetails />}
         {editMode && (
           <IdeaForm
             key={(selectedIdea && selectedIdea.id) || 0}
-            setEditMode={setEditMode}
             idea={selectedIdea!}
-            createIdea={createIdea}
-            editIdea={editIdea}
-            submitting={submitting}
           />
         )}
       </Grid.Column>
     </Grid>
   );
 };
+
+export default observer(IdeaDashboard);

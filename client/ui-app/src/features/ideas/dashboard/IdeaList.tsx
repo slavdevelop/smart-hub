@@ -1,26 +1,23 @@
-import React, { SyntheticEvent } from "react";
+import React, { useContext } from "react";
 import { Item, Button, Label, Segment } from "semantic-ui-react";
-import { IIdea } from "../../../app/models/idea";
+import { observer } from "mobx-react-lite";
 
-interface IProps {
-  ideas: IIdea[];
-  selectIdea: (id: string) => void;
-  deleteIdea: (event: SyntheticEvent<HTMLButtonElement>, id: string) => void;
-  submitting: boolean;
-  target: string;
-}
+import IdeaStore from "../../../app/stores/ideaStore";
 
-export const IdeaList: React.FC<IProps> = ({
-  ideas,
-  selectIdea,
-  deleteIdea,
-  submitting,
-  target
-}) => {
+const IdeaList: React.FC = () => {
+  const ideaStore = useContext(IdeaStore);
+  const {
+    ideasByCreated,
+    selectIdea,
+    deleteIdea,
+    submitting,
+    target
+  } = ideaStore;
+
   return (
     <Segment clearing>
       <Item.Group divided>
-        {ideas.map(idea => (
+        {ideasByCreated.map(idea => (
           <Item key={idea.id}>
             <Item.Content>
               <Item.Header as="a">{idea.title}</Item.Header>
@@ -51,3 +48,5 @@ export const IdeaList: React.FC<IProps> = ({
     </Segment>
   );
 };
+
+export default observer(IdeaList);

@@ -1,23 +1,20 @@
-import React, { useState, FormEvent } from "react";
+import React, { useState, FormEvent, useContext } from "react";
 import { Segment, Form, Button } from "semantic-ui-react";
-import { IIdea } from "../../../app/models/idea";
 import { v4 as uuid } from "uuid";
 
+import { IIdea } from "../../../app/models/idea";
+
+import IdeaStore from "../../../app/stores/ideaStore";
+import { observer } from "mobx-react-lite";
+
 interface IProps {
-  setEditMode: (editMode: boolean) => void;
   idea: IIdea;
-  createIdea: (idea: IIdea) => void;
-  editIdea: (idea: IIdea) => void;
-  submitting: boolean;
 }
 
-export const IdeaForm: React.FC<IProps> = ({
-  setEditMode,
-  idea: initialFormState,
-  createIdea,
-  editIdea,
-  submitting
-}) => {
+const IdeaForm: React.FC<IProps> = ({ idea: initialFormState }) => {
+  const ideaStore = useContext(IdeaStore);
+  const { createIdea, editIdea, submitting, cancelFormOpen } = ideaStore;
+
   const initializeForm = () => {
     if (initialFormState) {
       return initialFormState;
@@ -99,7 +96,7 @@ export const IdeaForm: React.FC<IProps> = ({
           content="Submit"
         />
         <Button
-          onClick={() => setEditMode(false)}
+          onClick={cancelFormOpen}
           floated="right"
           type="button"
           content="Cancel"
@@ -108,3 +105,5 @@ export const IdeaForm: React.FC<IProps> = ({
     </Segment>
   );
 };
+
+export default observer(IdeaForm);

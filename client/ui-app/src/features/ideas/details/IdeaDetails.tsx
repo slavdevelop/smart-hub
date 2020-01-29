@@ -1,18 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Card, Image, Button } from "semantic-ui-react";
-import { IIdea } from "../../../app/models/idea";
+import { observer } from "mobx-react-lite";
 
-interface IProps {
-  idea: IIdea | null;
-  setEditMode: (editMode: boolean) => void;
-  setSelectedIdea: (idea: IIdea | null) => void;
-}
+import IdeaStore from "../../../app/stores/ideaStore";
 
-export const IdeaDetails: React.FC<IProps> = ({
-  idea,
-  setEditMode,
-  setSelectedIdea
-}) => {
+const IdeaDetails: React.FC = () => {
+  const ideaStore = useContext(IdeaStore);
+  const { selectedIdea: idea, openEditForm, cancelSelectedIdea } = ideaStore;
+
   return (
     <Card fluid>
       <Image
@@ -22,25 +17,25 @@ export const IdeaDetails: React.FC<IProps> = ({
       />
       {idea !== null && (
         <Card.Content>
-          <Card.Header>{idea.title}</Card.Header>
+          <Card.Header>{idea!.title}</Card.Header>
           <Card.Meta>
-            <span>{idea.created}</span>
-            <span>{idea.updated}</span>
+            <span>{idea!.created}</span>
+            <span>{idea!.updated}</span>
           </Card.Meta>
-          <Card.Meta>{idea.category}</Card.Meta>
-          <Card.Description>{idea.description}</Card.Description>
+          <Card.Meta>{idea!.category}</Card.Meta>
+          <Card.Description>{idea!.description}</Card.Description>
         </Card.Content>
       )}
       <Card.Content extra>
         <Button.Group widths={2}>
           <Button
-            onClick={() => setEditMode(true)}
+            onClick={() => openEditForm(idea!.id)}
             basic
             color="blue"
             content="Edit"
           />
           <Button
-            onClick={() => setSelectedIdea(null)}
+            onClick={cancelSelectedIdea}
             basic
             color="grey"
             content="Cancel"
@@ -50,3 +45,5 @@ export const IdeaDetails: React.FC<IProps> = ({
     </Card>
   );
 };
+
+export default observer(IdeaDetails);
