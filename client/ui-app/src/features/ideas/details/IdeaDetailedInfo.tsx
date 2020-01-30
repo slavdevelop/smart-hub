@@ -1,6 +1,7 @@
 import React from "react";
 import { Segment, Grid, Icon } from "semantic-ui-react";
 import { IIdea } from "../../../app/models/idea";
+import { format } from "date-fns";
 
 const IdeaDetailedInfo: React.FC<{ idea: IIdea }> = ({ idea }) => {
   return (
@@ -21,7 +22,10 @@ const IdeaDetailedInfo: React.FC<{ idea: IIdea }> = ({ idea }) => {
             <Icon name="calendar" size="large" color="teal" />
           </Grid.Column>
           <Grid.Column width={15}>
-            <span>{idea.created}</span>
+            <span>
+              {format(idea.created!, "eeee do MMMM")} at{" "}
+              {format(idea.created!, "h:mm a")}
+            </span>
           </Grid.Column>
         </Grid>
       </Segment>

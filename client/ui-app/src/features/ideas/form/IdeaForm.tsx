@@ -3,7 +3,11 @@ import { Segment, Form, Button, Grid } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
 import { Form as FinalForm, Field } from "react-final-form";
 
-import { IIdea } from "../../../app/models/idea";
+import {
+  IIdea,
+  IIdeaFormValues,
+  IdeaFormValues
+} from "../../../app/models/idea";
 
 import IdeaStore from "../../../app/stores/ideaStore";
 import { observer } from "mobx-react-lite";
@@ -11,8 +15,9 @@ import { RouteComponentProps } from "react-router-dom";
 import TextInput from "../../../app/common/form/TextInput";
 import TextAreaInput from "../../../app/common/form/TextAreaInput";
 import SelectInput from "../../../app/common/form/SelectInput";
-import { category } from "../../../app/common/options/categoryOptions";
+import { categoryOptions } from "../../../app/common/options/categoryOptions";
 import DateInput from "../../../app/common/form/DateInput";
+import { combineDateAndTime } from "../../../app/common/util/util";
 
 interface DetailParams {
   id: string;
@@ -32,42 +37,32 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
     clearIdea
   } = ideaStore;
 
-  const [idea, setIdea] = useState<IIdea>({
-    id: "",
-    title: "",
-    category: "",
-    description: "",
-    created: "",
-    updated: ""
-  });
+  const [idea, setIdea] = useState(new IdeaFormValues());
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (match.params.id && idea.id.length === 0) {
-      loadIdea(match.params.id).then(
-        () => initialFormState && setIdea(initialFormState)
-      );
+    if (match.params.id) {
+      setLoading(true);
+      loadIdea(match.params.id)
+        .then(idea => setIdea(new IdeaFormValues(idea)))
+        .finally(() => setLoading(false));
     }
-
-    return () => {
-      clearIdea();
-    };
-  }, [loadIdea, clearIdea, match.params.id, initialFormState, idea.id.length]);
-
-  // const handleSubmit = () => {
-  //   if (idea.id.length === 0) {
-  //     let newIdea = {
-  //       ...idea,
-  //       id: uuid()
-  //     };
-
-  //     createIdea(newIdea).then(() => history.push(`/ideas/${newIdea.id}`));
-  //   } else {
-  //     editIdea(idea).then(() => history.push(`/ideas/${idea.id}`));
-  //   }
-  // };
+  }, [loadIdea, match.params.id]);
 
   const handleFinalFormSubmit = (values: any) => {
-    console.log(values);
+    const dateAndTime = combineDateAndTime(values.created, values.time);
+    const { created, time, ...idea } = values;
+    idea.created = dateAndTime;
+
+    if (!idea.id) {
+      let newIdea = {
+        ...idea,
+        id: uuid()
+      };
+      createIdea(newIdea);
+    } else {
+      editIdea(idea);
+    }
   };
 
   return (
@@ -75,9 +70,10 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
       <Grid.Column width={10}>
         <Segment clearing>
           <FinalForm
+            initialValues={idea}
             onSubmit={handleFinalFormSubmit}
             render={({ handleSubmit }) => (
-              <Form onSubmit={handleSubmit}>
+              <Form onSubmit={handleSubmit} loading={loading}>
                 <Field
                   name="title"
                   placeholder="Title"
@@ -93,25 +89,38 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
                 />
                 <Field
                   name="category"
-                  options={category}
+                  options={categoryOptions}
                   placeholder="Category"
                   value={idea.category}
                   component={SelectInput}
                 />
-                <Field
-                  name="created"
-                  placeholder="Created"
-                  value={new Date(idea.created)}
-                  component={DateInput}
-                />
+                <Form.Group width="equal">
+                  <Field
+                    name="created"
+                    date={true}
+                    placeholder="Created"
+                    value={idea.created}
+                    component={DateInput}
+                  />
+                  <Field
+                    name="time"
+                    time={true}
+                    placeholder="Created"
+                    value={idea.created}
+                    component={DateInput}
+                  />
+                </Form.Group>
                 <Field
                   name="updated"
                   placeholder="Updated"
-                  value={new Date(idea.updated)}
+                  date={true}
+                  time={true}
+                  value={idea.updated}
                   component={DateInput}
                 />
                 <Button
                   loading={submitting}
+                  disabled={loading}
                   floated="right"
                   positive
                   type="submit"
@@ -119,6 +128,7 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
                 />
                 <Button
                   onClick={() => history.push("/ideas")}
+                  disabled={loading}
                   floated="right"
                   type="button"
                   content="Cancel"

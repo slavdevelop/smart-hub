@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, Item, Segment, Icon } from "semantic-ui-react";
 import { Link } from "react-router-dom";
+import { format } from "date-fns";
 
 import { IIdea } from "../../../app/models/idea";
 
@@ -13,7 +14,7 @@ export const IdeaListItem: React.FC<{ idea: IIdea }> = ({ idea }) => {
             <Item.Image size="tiny" circular src="/assets/user.png" />
             <Item.Content>
               <Item.Header as="a">{idea.title}</Item.Header>
-              <Item.Meta>{idea.created}</Item.Meta>
+              <Item.Meta>{format(idea.created!, "h:mm a")}</Item.Meta>
               <Item.Description>
                 Hosted by <b>Slav</b>
               </Item.Description>
@@ -22,7 +23,7 @@ export const IdeaListItem: React.FC<{ idea: IIdea }> = ({ idea }) => {
         </Item.Group>
       </Segment>
       <Segment>
-        <Icon name="clock" /> {idea.created}
+        <Icon name="clock" /> {format(idea.created!, "h:mm a")}
         <Icon name="marker" /> Zhitnitsa, Plovdiv
       </Segment>
       <Segment secondary>Attendes will go here</Segment>

@@ -2,6 +2,7 @@ import { observable, action, computed, configure, runInAction } from "mobx";
 import { createContext, SyntheticEvent } from "react";
 import { IIdea } from "../models/idea";
 import agent from "../api/agent";
+import { history } from "../..";
 
 configure({ enforceActions: "always" });
 
@@ -18,12 +19,12 @@ class IdeaStore {
 
   groupIdeasByDate(ideas: IIdea[]) {
     const sortedIdeas = ideas.sort(
-      (a, b) => Date.parse(a.created) - Date.parse(b.created)
+      (a, b) => a.created.getTime() - b.created.getTime()
     );
 
     return Object.entries(
       sortedIdeas.reduce((ideas, idea) => {
-        const date = idea.created.split("T")[0];
+        const date = idea.created.toISOString().split("T")[0];
         ideas[date] = ideas[date] ? [...ideas[date], idea] : [idea];
 
         return ideas;
@@ -38,8 +39,8 @@ class IdeaStore {
       const ideas = await agent.Ideas.list();
       runInAction("loading ideas", () => {
         ideas.forEach(idea => {
-          idea.created = idea.created.split(".")[0];
-          idea.updated = idea.updated.split(".")[0];
+          idea.created = new Date(idea.created!);
+          idea.updated = new Date(idea.updated!);
           this.ideaRegistry.set(idea.id, idea);
         });
 
@@ -58,6 +59,7 @@ class IdeaStore {
 
     if (idea) {
       this.idea = idea;
+      return idea;
     } else {
       this.loadingInitial = true;
 
@@ -65,9 +67,11 @@ class IdeaStore {
         idea = await agent.Ideas.details(id);
 
         runInAction("getting idea", () => {
+          idea.created = new Date(idea.created);
           this.idea = idea;
           this.loadingInitial = false;
         });
+        return idea;
       } catch (error) {
         runInAction("get idea error", () => {
           this.loadingInitial = false;
@@ -93,6 +97,8 @@ class IdeaStore {
         this.ideaRegistry.set(idea.id, idea);
         this.submitting = false;
       });
+
+      history.push(`/ideas/${idea.id}`);
     } catch (error) {
       runInAction("create idea error", () => {
         this.submitting = false;
@@ -111,6 +117,8 @@ class IdeaStore {
         this.idea = idea;
         this.submitting = false;
       });
+
+      history.push(`/ideas/${idea.id}`);
     } catch (error) {
       runInAction("edit idea error", () => {
         this.submitting = false;
