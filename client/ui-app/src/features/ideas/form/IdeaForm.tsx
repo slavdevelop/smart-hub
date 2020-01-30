@@ -1,13 +1,9 @@
-import React, { useState, FormEvent, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Segment, Form, Button, Grid } from "semantic-ui-react";
 import { v4 as uuid } from "uuid";
 import { Form as FinalForm, Field } from "react-final-form";
 
-import {
-  IIdea,
-  IIdeaFormValues,
-  IdeaFormValues
-} from "../../../app/models/idea";
+import { IdeaFormValues } from "../../../app/models/idea";
 
 import IdeaStore from "../../../app/stores/ideaStore";
 import { observer } from "mobx-react-lite";
@@ -18,6 +14,26 @@ import SelectInput from "../../../app/common/form/SelectInput";
 import { categoryOptions } from "../../../app/common/options/categoryOptions";
 import DateInput from "../../../app/common/form/DateInput";
 import { combineDateAndTime } from "../../../app/common/util/util";
+import {
+  combineValidators,
+  isRequired,
+  composeValidators,
+  hasLengthGreaterThan
+} from "revalidate";
+
+const validate = combineValidators({
+  title: isRequired({ message: "Idea title is required" }),
+  category: isRequired("Category"),
+  description: composeValidators(
+    isRequired("Description"),
+    hasLengthGreaterThan(4)({
+      message: "Description needs to be at least 5 characters"
+    })
+  )(),
+  created: isRequired("Created"),
+  time: isRequired("Time"),
+  updated: isRequired("Updated")
+});
 
 interface DetailParams {
   id: string;
@@ -28,14 +44,7 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
   history
 }) => {
   const ideaStore = useContext(IdeaStore);
-  const {
-    createIdea,
-    editIdea,
-    submitting,
-    idea: initialFormState,
-    loadIdea,
-    clearIdea
-  } = ideaStore;
+  const { createIdea, editIdea, submitting, loadIdea } = ideaStore;
 
   const [idea, setIdea] = useState(new IdeaFormValues());
   const [loading, setLoading] = useState(false);
@@ -70,9 +79,10 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
       <Grid.Column width={10}>
         <Segment clearing>
           <FinalForm
+            validate={validate}
             initialValues={idea}
             onSubmit={handleFinalFormSubmit}
-            render={({ handleSubmit }) => (
+            render={({ handleSubmit, invalid, pristine }) => (
               <Form onSubmit={handleSubmit} loading={loading}>
                 <Field
                   name="title"
@@ -120,15 +130,19 @@ const IdeaForm: React.FC<RouteComponentProps<DetailParams>> = ({
                 />
                 <Button
                   loading={submitting}
-                  disabled={loading}
+                  disabled={loading || invalid || pristine}
                   floated="right"
                   positive
                   type="submit"
                   content="Submit"
                 />
                 <Button
-                  onClick={() => history.push("/ideas")}
-                  disabled={loading}
+                  onClick={
+                    idea.id
+                      ? () => history.push(`/ideas/${idea.id}`)
+                      : () => history.push("/ideas")
+                  }
+                  disabled={loading || invalid || pristine}
                   floated="right"
                   type="button"
                   content="Cancel"

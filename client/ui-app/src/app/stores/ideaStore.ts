@@ -3,6 +3,7 @@ import { createContext, SyntheticEvent } from "react";
 import { IIdea } from "../models/idea";
 import agent from "../api/agent";
 import { history } from "../..";
+import { toast } from "react-toastify";
 
 configure({ enforceActions: "always" });
 
@@ -69,6 +70,7 @@ class IdeaStore {
         runInAction("getting idea", () => {
           idea.created = new Date(idea.created);
           this.idea = idea;
+          this.ideaRegistry.set(idea.id, idea);
           this.loadingInitial = false;
         });
         return idea;
@@ -76,8 +78,8 @@ class IdeaStore {
         runInAction("get idea error", () => {
           this.loadingInitial = false;
         });
-
-        console.log(error);
+        toast.error("Problem submitting data");
+        console.log(error.response);
       }
     }
   };
